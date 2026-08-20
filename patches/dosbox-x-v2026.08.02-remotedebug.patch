@@ -1,7 +1,7 @@
-diff --git c/configure.ac w/configure.ac
+diff --git a/configure.ac b/configure.ac
 index 332e6bfe5..135ca5d74 100644
---- c/configure.ac
-+++ w/configure.ac
+--- a/configure.ac
++++ b/configure.ac
 @@ -1155,6 +1155,29 @@ AC_ARG_ENABLE(debug,AC_HELP_STRING([--enable-debug],[Enable debug mode]),[
     fi
  ],)
@@ -32,10 +32,22 @@ index 332e6bfe5..135ca5d74 100644
  dnl automake 1.14 and upwards rewrite the host to have always 64 bit unless i386 as host is passed
  dnl this can make building a 32 bit executable a bit tricky, as dosbox relies on the host to select the
  dnl dynamic/dynrec core
-diff --git c/include/debug.h w/include/debug.h
+diff --git a/include/bios_disk.h b/include/bios_disk.h
+index d799de518..79bb7ec84 100644
+--- a/include/bios_disk.h
++++ b/include/bios_disk.h
+@@ -601,6 +601,7 @@ extern RealPt imgDTAPtr; /* Real memory location of temporary DTA pointer for fa
+ extern DOS_DTA *imgDTA;
+ 
+ void swapInDisks(int drive);
++void swapInDrive(int drive, unsigned int position);
+ bool getSwapRequest(void);
+ imageDisk *GetINT13HardDrive(unsigned char drv);
+ imageDisk *GetINT13FloppyDrive(unsigned char drv);
+diff --git a/include/debug.h b/include/debug.h
 index 7a5543d33..2177e5913 100644
---- c/include/debug.h
-+++ w/include/debug.h
+--- a/include/debug.h
++++ b/include/debug.h
 @@ -26,6 +26,42 @@ bool DEBUG_ExitLoop(void);
  void DEBUG_RefreshPage(char scroll);
  Bitu DEBUG_EnableDebugger(void);
@@ -79,10 +91,10 @@ index 7a5543d33..2177e5913 100644
  extern Bitu cycle_count;
  extern Bitu debugCallback;
  
-diff --git c/include/dosbox.h w/include/dosbox.h
+diff --git a/include/dosbox.h b/include/dosbox.h
 index 5bfc04999..fcb3c2e1b 100644
---- c/include/dosbox.h
-+++ w/include/dosbox.h
+--- a/include/dosbox.h
++++ b/include/dosbox.h
 @@ -334,6 +334,16 @@ bool CheckPreventCap(void);
  void ApplyPreventCap(void);
  void ApplyPreventCapMenu(void);
@@ -116,11 +128,11 @@ index 5bfc04999..fcb3c2e1b 100644
  #if defined (WIN32)
  int _wmkdir_p(const wchar_t *pathname);
  #else
-diff --git c/include/gdbserver.h w/include/gdbserver.h
+diff --git a/include/gdbserver.h b/include/gdbserver.h
 new file mode 100644
 index 000000000..7e8b03aed
 --- /dev/null
-+++ w/include/gdbserver.h
++++ b/include/gdbserver.h
 @@ -0,0 +1,90 @@
 +#ifndef DOSBOX_GDBSERVER_H
 +#define DOSBOX_GDBSERVER_H
@@ -212,10 +224,10 @@ index 000000000..7e8b03aed
 +#endif /* C_REMOTEDEBUG */
 +
 +#endif /* DOSBOX_GDBSERVER_H */
-diff --git c/include/hardware.h w/include/hardware.h
+diff --git a/include/hardware.h b/include/hardware.h
 index a3e43dd27..638f3916e 100644
---- c/include/hardware.h
-+++ w/include/hardware.h
+--- a/include/hardware.h
++++ b/include/hardware.h
 @@ -19,6 +19,7 @@
  #pragma once
  
@@ -234,10 +246,10 @@ index a3e43dd27..638f3916e 100644
 +bool CAPTURE_IsScreenshotPending();          // Returns true if screenshot is in progress
 +std::string CAPTURE_GetLastScreenshotPath(); // Get path of last screenshot (clears after read)
 +void CAPTURE_ClearLastScreenshotPath();      // Clear the last screenshot path
-diff --git c/include/logging.h w/include/logging.h
+diff --git a/include/logging.h b/include/logging.h
 index 682cf7a04..1666ca59b 100644
---- c/include/logging.h
-+++ w/include/logging.h
+--- a/include/logging.h
++++ b/include/logging.h
 @@ -33,6 +33,7 @@ enum LOG_TYPES {
  	LOG_IO,
  	LOG_PCI,
@@ -246,12 +258,12 @@ index 682cf7a04..1666ca59b 100644
  	LOG_MAX
  };
  
-diff --git c/include/qmp.h w/include/qmp.h
+diff --git a/include/qmp.h b/include/qmp.h
 new file mode 100644
-index 000000000..e1cbd75c0
+index 000000000..d45ca2964
 --- /dev/null
-+++ w/include/qmp.h
-@@ -0,0 +1,137 @@
++++ b/include/qmp.h
+@@ -0,0 +1,140 @@
 +/*
 + *  Copyright (C) 2002-2021  The DOSBox Team
 + *
@@ -301,7 +313,8 @@ index 000000000..e1cbd75c0
 +    KeyRelease,
 +    MouseButtonPress,
 +    MouseButtonRelease,
-+    MouseMove
++    MouseMove,
++    SwapFloppy
 +};
 +
 +struct QMPInputEvent {
@@ -309,6 +322,7 @@ index 000000000..e1cbd75c0
 +    union {
 +        KBD_KEYS key;        // For keyboard events
 +        uint8_t button;      // For mouse button events
++        int drive;           // For floppy swaps
 +        struct {
 +            float x, y;      // For mouse move events
 +        } move;
@@ -368,6 +382,7 @@ index 000000000..e1cbd75c0
 +    void handle_system_reset(const std::string& cmd);
 +    void handle_query_status();
 +    void handle_debug_break_on_exec(const std::string& cmd);
++    void handle_swap_floppy(const std::string& cmd);
 +
 +    // Key mapping
 +    static KBD_KEYS qcode_to_kbd(const std::string& qcode);
@@ -389,10 +404,10 @@ index 000000000..e1cbd75c0
 +#endif /* C_REMOTEDEBUG */
 +
 +#endif /* DOSBOX_QMP_H */
-diff --git c/src/cpu/cpu.cpp w/src/cpu/cpu.cpp
+diff --git a/src/cpu/cpu.cpp b/src/cpu/cpu.cpp
 index 84b0e9a09..fd578797a 100644
---- c/src/cpu/cpu.cpp
-+++ w/src/cpu/cpu.cpp
+--- a/src/cpu/cpu.cpp
++++ b/src/cpu/cpu.cpp
 @@ -3266,6 +3266,14 @@ bool CPU_IsHLTed(void) {
  	return (cpudecoder == &HLT_Decode);
  }
@@ -408,10 +423,10 @@ index 84b0e9a09..fd578797a 100644
  void CPU_HLT(uint32_t oldeip) {
  	/* Since cpu.hlt.old_decoder assigns the current decoder to old, and relies on restoring
  	 * it back when finished, setting cpudecoder to HLT_Decode while already HLT_Decode effectively
-diff --git c/src/debug/Makefile.am w/src/debug/Makefile.am
+diff --git a/src/debug/Makefile.am b/src/debug/Makefile.am
 index 95cab04a1..e3eaf14fa 100644
---- c/src/debug/Makefile.am
-+++ w/src/debug/Makefile.am
+--- a/src/debug/Makefile.am
++++ b/src/debug/Makefile.am
 @@ -1,4 +1,8 @@
 -AM_CPPFLAGS = -I$(top_srcdir)/include
 -
@@ -426,10 +441,10 @@ index 95cab04a1..e3eaf14fa 100644
 +if C_REMOTEDEBUG
 +libdebug_a_SOURCES += gdbserver.cpp qmp.cpp
 +endif
-diff --git c/src/debug/debug.cpp w/src/debug/debug.cpp
+diff --git a/src/debug/debug.cpp b/src/debug/debug.cpp
 index 37a3fcae5..a4206316c 100644
---- c/src/debug/debug.cpp
-+++ w/src/debug/debug.cpp
+--- a/src/debug/debug.cpp
++++ b/src/debug/debug.cpp
 @@ -43,6 +43,10 @@ using namespace std;
  #include "mapper.h"
  #include "pc98_gdc.h"
@@ -1089,10 +1104,10 @@ index 37a3fcae5..a4206316c 100644
 +
  
  #endif // DEBUG
-diff --git c/src/debug/debug_gui.cpp w/src/debug/debug_gui.cpp
+diff --git a/src/debug/debug_gui.cpp b/src/debug/debug_gui.cpp
 index 8912a781c..e16d12d59 100644
---- c/src/debug/debug_gui.cpp
-+++ w/src/debug/debug_gui.cpp
+--- a/src/debug/debug_gui.cpp
++++ b/src/debug/debug_gui.cpp
 @@ -998,6 +998,7 @@ void LOG::EarlyInit(void) {
  	loggrp[LOG_PCI].front="PCI";
  	
@@ -1112,11 +1127,11 @@ index 8912a781c..e16d12d59 100644
  		Pstring->Set_values(log_values);
  		Pstring->Set_help("Enable/Disable logging of this type.");
      }
-diff --git c/src/debug/gdbserver.cpp w/src/debug/gdbserver.cpp
+diff --git a/src/debug/gdbserver.cpp b/src/debug/gdbserver.cpp
 new file mode 100644
 index 000000000..2ef3456d9
 --- /dev/null
-+++ w/src/debug/gdbserver.cpp
++++ b/src/debug/gdbserver.cpp
 @@ -0,0 +1,559 @@
 +#include "dosbox.h"
 +
@@ -1677,12 +1692,12 @@ index 000000000..2ef3456d9
 +}
 +
 +#endif /* C_REMOTEDEBUG */
-diff --git c/src/debug/qmp.cpp w/src/debug/qmp.cpp
+diff --git a/src/debug/qmp.cpp b/src/debug/qmp.cpp
 new file mode 100644
-index 000000000..c180877c0
+index 000000000..37731ba16
 --- /dev/null
-+++ w/src/debug/qmp.cpp
-@@ -0,0 +1,1141 @@
++++ b/src/debug/qmp.cpp
+@@ -0,0 +1,1162 @@
 +/*
 + *  Copyright (C) 2002-2021  The DOSBox Team
 + *
@@ -1716,6 +1731,7 @@ index 000000000..c180877c0
 +#include "logging.h"
 +#include "debug.h"
 +#include "hardware.h"
++#include "bios_disk.h"
 +#include "mouse.h"
 +
 +static QMPServer* qmpServer = nullptr;
@@ -2126,6 +2142,8 @@ index 000000000..c180877c0
 +        handle_query_status();
 +    } else if (execute == "debug-break-on-exec") {
 +        handle_debug_break_on_exec(cmd);
++    } else if (execute == "swap-floppy") {
++        handle_swap_floppy(cmd);
 +    } else if (execute == "quit" || execute == "system_powerdown") {
 +        send_success();
 +        // Don't actually quit DOSBox, just acknowledge
@@ -2155,7 +2173,8 @@ index 000000000..c180877c0
 +        "{\"name\": \"stop\"},"
 +        "{\"name\": \"cont\"},"
 +        "{\"name\": \"system_reset\"},"
-+        "{\"name\": \"debug-break-on-exec\"}"
++        "{\"name\": \"debug-break-on-exec\"},"
++        "{\"name\": \"swap-floppy\"}"
 +    "]}\r\n";
 +    send_response(response);
 +}
@@ -2193,10 +2212,27 @@ index 000000000..c180877c0
 +            case QMPInputEventType::MouseMove:
 +                Mouse_CursorMoved(event.move.x, event.move.y, 0, 0, true);
 +                break;
++            case QMPInputEventType::SwapFloppy:
++                swapInDrive(event.drive, 0);
++                break;
 +        }
 +
 +        events_to_process.pop();
 +    }
++}
++
++void QMPServer::handle_swap_floppy(const std::string& cmd) {
++    const int drive = extract_int(cmd, "drive", 0);
++    if (drive < 0 || drive > 1) {
++        send_error("GenericError", "Floppy drive must be 0 (A:) or 1 (B:)");
++        return;
++    }
++
++    QMPInputEvent event;
++    event.type = QMPInputEventType::SwapFloppy;
++    event.drive = drive;
++    queue_input_event(event);
++    send_success();
 +}
 +
 +void QMPServer::handle_send_key(const std::string& cmd) {
@@ -2824,10 +2860,10 @@ index 000000000..c180877c0
 +}
 +
 +#endif /* C_REMOTEDEBUG */
-diff --git c/src/dosbox.cpp w/src/dosbox.cpp
+diff --git a/src/dosbox.cpp b/src/dosbox.cpp
 index b2026d88e..11236427a 100644
---- c/src/dosbox.cpp
-+++ w/src/dosbox.cpp
+--- a/src/dosbox.cpp
++++ b/src/dosbox.cpp
 @@ -53,6 +53,9 @@
  #include <unistd.h>
  #include "dosbox.h"
@@ -2879,10 +2915,10 @@ index b2026d88e..11236427a 100644
      Pstring = secprop->Add_string("machine",Property::Changeable::OnlyAtStart,"svga_s3");
      Pstring->Set_values(machines);
      Pstring->Set_help("The type of machine DOSBox-X tries to emulate.");
-diff --git c/src/gui/menu.cpp w/src/gui/menu.cpp
+diff --git a/src/gui/menu.cpp b/src/gui/menu.cpp
 index efbc807ea..94628ce74 100644
---- c/src/gui/menu.cpp
-+++ w/src/gui/menu.cpp
+--- a/src/gui/menu.cpp
++++ b/src/gui/menu.cpp
 @@ -871,6 +871,10 @@ static const char* def_menu_debug[] =
      "--",
      "debug_logint21",
@@ -2894,10 +2930,10 @@ index efbc807ea..94628ce74 100644
  #endif
      NULL
  };
-diff --git c/src/gui/menu_callback.cpp w/src/gui/menu_callback.cpp
+diff --git a/src/gui/menu_callback.cpp b/src/gui/menu_callback.cpp
 index d6311a17c..f2e748e27 100644
---- c/src/gui/menu_callback.cpp
-+++ w/src/gui/menu_callback.cpp
+--- a/src/gui/menu_callback.cpp
++++ b/src/gui/menu_callback.cpp
 @@ -34,6 +34,9 @@
  #include "regs.h"
  #include "cpu.h"
@@ -2975,10 +3011,10 @@ index d6311a17c..f2e748e27 100644
                  }
              }
          }
-diff --git c/src/gui/sdlmain.cpp w/src/gui/sdlmain.cpp
+diff --git a/src/gui/sdlmain.cpp b/src/gui/sdlmain.cpp
 index c654f8853..99c1fe845 100644
---- c/src/gui/sdlmain.cpp
-+++ w/src/gui/sdlmain.cpp
+--- a/src/gui/sdlmain.cpp
++++ b/src/gui/sdlmain.cpp
 @@ -1514,6 +1514,68 @@ static bool IsFullscreen() {
  bool is_paused = false;
  bool unpause_now = false;
@@ -3048,10 +3084,10 @@ index c654f8853..99c1fe845 100644
  #if DOSBOXMENU_TYPE == DOSBOXMENU_NSMENU
  int pause_menu_item_tag = -1;
  #endif
-diff --git c/src/hardware/hardware.cpp w/src/hardware/hardware.cpp
+diff --git a/src/hardware/hardware.cpp b/src/hardware/hardware.cpp
 index 79de484d2..4a7abd52e 100644
---- c/src/hardware/hardware.cpp
-+++ w/src/hardware/hardware.cpp
+--- a/src/hardware/hardware.cpp
++++ b/src/hardware/hardware.cpp
 @@ -72,6 +72,7 @@ extern "C" {
  bool video_debug_overlay = false;
  bool skip_encoding_unchanged_frames = false, show_recorded_filename = true;
@@ -3101,10 +3137,10 @@ index 79de484d2..4a7abd52e 100644
  MixerChannel * MIXER_FirstChannel(void);
  
  void CAPTURE_MultiTrackAddWave(uint32_t freq, uint32_t len, int16_t * data,const char *name) {
-diff --git c/src/misc/savestates.cpp w/src/misc/savestates.cpp
+diff --git a/src/misc/savestates.cpp b/src/misc/savestates.cpp
 index 8b76f5fdd..df5d10c8c 100644
---- c/src/misc/savestates.cpp
-+++ w/src/misc/savestates.cpp
+--- a/src/misc/savestates.cpp
++++ b/src/misc/savestates.cpp
 @@ -5,8 +5,10 @@
  #include <assert.h>
  #include <string>

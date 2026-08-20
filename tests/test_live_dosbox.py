@@ -28,7 +28,7 @@ def test_live_qmp_and_gdb(tmp_path: Path) -> None:
 
     sys.path.insert(0, str(Path(dos_mcp_root) / "src"))
     from dos_mcp.qmp import QmpClient
-    from dos_mcp.tools import pause, read_memory, resume, status
+    from dos_mcp.tools import pause, read_memory, resume, status, swap_floppy
 
     gdb_port = free_port()
     qmp_port = free_port()
@@ -75,6 +75,7 @@ def test_live_qmp_and_gdb(tmp_path: Path) -> None:
             assert memory["size"] == 16
             assert memory["consistent"] is True
             assert resume(client)["status"] == "running"
+            assert swap_floppy(client, drive=0) == {"ok": True, "drive": 0}
 
             gdb = subprocess.run(
                 [
