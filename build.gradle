@@ -20,6 +20,7 @@ tasks.named('buildExtension') {
     }
     exclude '.github/**'
     exclude '.gradle/**'
+    exclude '.codewhale/**'
     exclude '.pytest_cache/**'
     exclude '.gitignore'
     exclude 'AGENTS.md'
