@@ -1,0 +1,36 @@
+// Ghidra extension containing a DOSBox-X/GDB launcher and reproducible patch.
+def ghidraInstallDir
+if (System.env.GHIDRA_INSTALL_DIR) {
+    ghidraInstallDir = System.env.GHIDRA_INSTALL_DIR
+} else if (project.hasProperty("GHIDRA_INSTALL_DIR")) {
+    ghidraInstallDir = project.getProperty("GHIDRA_INSTALL_DIR")
+}
+
+if (ghidraInstallDir) {
+    apply from: new File(ghidraInstallDir).getCanonicalPath() + "/support/buildExtension.gradle"
+} else {
+    throw new GradleException("GHIDRA_INSTALL_DIR is not defined!")
+}
+
+tasks.named('buildExtension') {
+    filesMatching('**/*.sh') {
+        permissions {
+            unix('rwxr-xr-x')
+        }
+    }
+    exclude '.github/**'
+    exclude '.gradle/**'
+    exclude '.pytest_cache/**'
+    exclude '.gitignore'
+    exclude 'AGENTS.md'
+    exclude 'CHANGELOG.md'
+    exclude 'build.gradle'
+    exclude 'gradle/**'
+    exclude 'gradlew'
+    exclude 'gradlew.bat'
+    exclude 'settings.gradle'
+    exclude 'tests/**'
+    exclude 'tools/**'
+    exclude 'patches/**'
+    exclude '.worktrees/**'
+}

@@ -1,0 +1,7 @@
+Ghidra DOSBox-X Connector
+Copyright 2026 Saverio Proto
+
+The patch under patches/ is derived from DOSBox-X and from the remote-debug
+work by lokkju/dosbox-x-remotedebug. Those portions remain under the GNU
+General Public License, version 2 or later.
+

@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ $# -ne 1 ]]; then
+    echo "usage: tools/apply-dosbox-x-patch DOSBOX_X_CHECKOUT" >&2
+    exit 2
+fi
+
+root=$(cd "$1" && pwd)
+patch_file=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/patches/dosbox-x-v2026.08.02-remotedebug.patch
+expected_commit=784240ad6d9cf3ae3f02fab819e2ed5cf5117dd4
+
+if [[ $(git -C "$root" rev-parse HEAD) != "$expected_commit" ]]; then
+    echo "DOSBox-X checkout must be at $expected_commit (dosbox-x-v2026.08.02)" >&2
+    exit 1
+fi
+if [[ -n $(git -C "$root" status --short --untracked-files=no) ]]; then
+    echo "DOSBox-X checkout has tracked changes" >&2
+    exit 1
+fi
+
+git -C "$root" apply --check "$patch_file"
+git -C "$root" apply "$patch_file"
+
