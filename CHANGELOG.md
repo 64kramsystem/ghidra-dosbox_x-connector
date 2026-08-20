@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+
+## 0.1.3
 - Run DOSBox-X without host video/audio and support booting raw hard-disk images with explicit geometry.
 
 ## 0.1.2
