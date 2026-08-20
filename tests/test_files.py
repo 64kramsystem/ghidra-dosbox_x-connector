@@ -24,6 +24,7 @@ def test_debug_services_are_loopback_only() -> None:
 def test_isolated_config_disables_host_bridges() -> None:
     config = (ROOT / "data/dosbox-x-malware.conf").read_text()
     for setting in (
+        "quit warning = false",
         "share = false",
         "automount = false",
         "startcmd = false",
@@ -34,4 +35,3 @@ def test_isolated_config_disables_host_bridges() -> None:
         "parallel1 = disabled",
     ):
         assert setting in config
-
