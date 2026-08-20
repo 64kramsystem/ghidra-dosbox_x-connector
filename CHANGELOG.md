@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Run DOSBox-X without host video/audio and support booting raw hard-disk images with explicit geometry.
 
 ## 0.1.2
 - Add loopback QMP floppy swapping for multi-disk guest workflows.

@@ -12,6 +12,8 @@
 #@env OPT_DOSBOX_X_PATH:file="dosbox-x" "DOSBox-X command" "Patched DOSBox-X executable. Omit the full path to resolve it with PATH."
 #@env OPT_DOSBOX_X_CONF:file="" "Guest config" "Optional DOSBox-X configuration loaded after the isolated base configuration."
 #@env OPT_BOOT_IMAGE:file="" "Boot image" "Optional bootable floppy image. The image remains writable."
+#@env OPT_HDD_IMAGE:file="" "Hard-disk image" "Optional bootable raw hard-disk image. The image remains writable."
+#@env OPT_HDD_GEOMETRY:str="512,63,2,520" "Hard-disk geometry" "Sector size, sectors, heads, and cylinders passed to IMGMOUNT -size."
 #@env OPT_EXTRA_DOSBOX_X_ARGS:str="" "Extra DOSBox-X arguments" "Additional arguments passed to DOSBox-X. Use with care."
 #@env OPT_GDB_PATH:file="gdb" "GDB command" "GDB with i8086 architecture support. Omit the full path to resolve it with PATH."
 #@env OPT_GDB_ARGS:str="" "GDB arguments" "Additional arguments passed to GDB."
@@ -29,6 +31,17 @@ BASE_CONF="$EXT_ROOT/data/dosbox-x-malware.conf"
 pypath_trace=$(ghidra-module-pypath "Debugger-rmi-trace")
 pypath_gdb=$(ghidra-module-pypath "Debugger-agent-gdb")
 export PYTHONPATH="$pypath_gdb:$pypath_trace:${PYTHONPATH:-}"
+export SDL_VIDEODRIVER=dummy
+export SDL_AUDIODRIVER=dummy
+
+if [[ -n "$OPT_BOOT_IMAGE" && -n "$OPT_HDD_IMAGE" ]]; then
+    echo "Choose either a floppy boot image or a hard-disk image, not both" >&2
+    exit 2
+fi
+if [[ -n "$OPT_HDD_IMAGE" && ! "$OPT_HDD_GEOMETRY" =~ ^[0-9]+,[0-9]+,[0-9]+,[0-9]+$ ]]; then
+    echo "Hard-disk geometry must be size,sectors,heads,cylinders" >&2
+    exit 2
+fi
 
 dosbox_args=(-conf "$BASE_CONF")
 if [[ -n "$OPT_DOSBOX_X_CONF" ]]; then
@@ -64,6 +77,12 @@ if [[ -n "$OPT_EXTRA_DOSBOX_X_ARGS" ]]; then
 fi
 if [[ -n "$OPT_BOOT_IMAGE" ]]; then
     dosbox_args+=(-c "IMGMOUNT A \"$OPT_BOOT_IMAGE\" -t floppy" -c "BOOT A:")
+fi
+if [[ -n "$OPT_HDD_IMAGE" ]]; then
+    dosbox_args+=(
+        -c "IMGMOUNT 2 \"$OPT_HDD_IMAGE\" -t hdd -fs none -size $OPT_HDD_GEOMETRY"
+        -c "BOOT C:"
+    )
 fi
 
 "$OPT_DOSBOX_X_PATH" "${dosbox_args[@]}" &

@@ -35,10 +35,9 @@ def test_live_qmp_and_gdb(tmp_path: Path) -> None:
     log_path = tmp_path / "dosbox-x.log"
     environment = os.environ.copy()
     environment["SDL_AUDIODRIVER"] = "dummy"
+    environment["SDL_VIDEODRIVER"] = "dummy"
 
     command = [
-        "xvfb-run",
-        "-a",
         dosbox_path,
         "-conf",
         str(ROOT / "data/dosbox-x-malware.conf"),

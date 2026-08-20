@@ -21,6 +21,16 @@ def test_debug_services_are_loopback_only() -> None:
     assert "0.0.0.0" not in launcher
 
 
+def test_launcher_is_headless_and_supports_raw_hard_disks() -> None:
+    launcher = (ROOT / "data/debugger-launchers/dosbox-x-gdb.sh").read_text()
+    assert "export SDL_VIDEODRIVER=dummy" in launcher
+    assert "export SDL_AUDIODRIVER=dummy" in launcher
+    assert '#@env OPT_HDD_IMAGE:file=""' in launcher
+    assert '#@env OPT_HDD_GEOMETRY:str="512,63,2,520"' in launcher
+    assert 'IMGMOUNT 2 \\"$OPT_HDD_IMAGE\\" -t hdd -fs none -size $OPT_HDD_GEOMETRY' in launcher
+    assert '-c "BOOT C:"' in launcher
+
+
 def test_isolated_config_disables_host_bridges() -> None:
     config = (ROOT / "data/dosbox-x-malware.conf").read_text()
     for setting in (
