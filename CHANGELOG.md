@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+## 0.1.2
 - Add loopback QMP floppy swapping for multi-disk guest workflows.
 
 ## 0.1.1
