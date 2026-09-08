@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+## 0.2.0
 - Use the DOSBox-X remote-debug fork's default branch; remove the bundled emulator patch and its application helper.
 
 ## 0.1.3
