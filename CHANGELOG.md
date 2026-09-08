@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Use the DOSBox-X remote-debug fork's default branch; remove the bundled emulator patch and its application helper.
+
 ## 0.1.3
 - Run DOSBox-X without host video/audio and support booting raw hard-disk images with explicit geometry.
 

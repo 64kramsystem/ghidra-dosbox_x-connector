@@ -9,7 +9,7 @@
 #@help gdb#remote
 #@depends Debugger-rmi-trace
 #@depends Debugger-agent-gdb
-#@env OPT_DOSBOX_X_PATH:file="dosbox-x" "DOSBox-X command" "Patched DOSBox-X executable. Omit the full path to resolve it with PATH."
+#@env OPT_DOSBOX_X_PATH:file="dosbox-x" "DOSBox-X command" "Remote-debug-enabled DOSBox-X executable. Omit the full path to resolve it with PATH."
 #@env OPT_DOSBOX_X_CONF:file="" "Guest config" "Optional DOSBox-X configuration loaded after the isolated base configuration."
 #@env OPT_BOOT_IMAGE:file="" "Boot image" "Optional bootable floppy image. The image remains writable."
 #@env OPT_HDD_IMAGE:file="" "Hard-disk image" "Optional bootable raw hard-disk image. The image remains writable."
