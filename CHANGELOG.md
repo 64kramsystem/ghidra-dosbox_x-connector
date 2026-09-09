@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Record only the current frame; GDB's flat x86 unwinder cannot reconstruct segmented DOS stacks.
+- On GDB exit, terminate a stopped guest before automatic detach can resume it.
+
 ## 0.2.0
 - Use the DOSBox-X remote-debug fork's default branch; remove the bundled emulator patch and its application helper.
 

@@ -122,9 +122,12 @@ gdb_args=(
     -ex "python import ghidragdb"
     -ex "python if not 'ghidragdb' in locals(): exit(253)"
     -ex "set architecture i8086"
+    # GDB's flat x86 unwinder cannot reconstruct segmented DOS call frames.
+    -ex "set backtrace limit 1"
     -ex "set endian little"
     -ex "set ghidra-language x86:LE:16:Real Mode"
     -ex "set ghidra-compiler default"
+    -ex "source $EXT_ROOT/data/support/dosbox-x.py"
 )
 if [[ -n "$OPT_GDB_ARGS" ]]; then
     gdb_args+=($OPT_GDB_ARGS)
