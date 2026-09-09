@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+## 0.2.1
 - Record only the current frame; GDB's flat x86 unwinder cannot reconstruct segmented DOS stacks.
 - On GDB exit, terminate a stopped guest before automatic detach can resume it.
 
