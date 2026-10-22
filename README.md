@@ -33,6 +33,9 @@ From the connector checkout:
 GHIDRA_INSTALL_DIR=/path/to/ghidra ./gradlew buildExtension
 ```
 
+The wrapper enables Java native access and Gradle's configuration cache by default.
+Pass `--no-configuration-cache` to disable the cache for a build.
+
 Install the zip from `dist/` through **File > Install Extensions**, then restart Ghidra. Choose **DOSBox-X DOS Debugger** and select the built `src/dosbox-x` executable. The launch dialog accepts an optional DOSBox-X config and either a bootable floppy or raw hard-disk image with explicit geometry.
 
 The launcher runs DOSBox-X with dummy SDL video/audio, enables the debug servers

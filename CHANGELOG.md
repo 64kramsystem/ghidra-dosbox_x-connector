@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixed
+
+- Enable Java native access and configuration caching for extension builds, with a cache-safe dependency-copy task.
+
 ## 0.2.1
 - Record only the current frame; GDB's flat x86 unwinder cannot reconstruct segmented DOS stacks.
 - On GDB exit, terminate a stopped guest before automatic detach can resume it.
