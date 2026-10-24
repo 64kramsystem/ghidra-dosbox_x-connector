@@ -3,3 +3,5 @@ build/
 dist/
 *.log
 
+AGENTS*.md
+!AGENTS.md
