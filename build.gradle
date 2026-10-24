@@ -6,7 +6,16 @@ if (System.env.GHIDRA_INSTALL_DIR) {
     ghidraInstallDir = project.getProperty("GHIDRA_INSTALL_DIR")
 }
 
+if (JavaVersion.current() != JavaVersion.VERSION_25) {
+    throw new GradleException("Build this extension with JDK 25.")
+}
+
 if (ghidraInstallDir) {
+    def metadata = new Properties()
+    file("${ghidraInstallDir}/Ghidra/application.properties").withInputStream { metadata.load(it) }
+    if (metadata.getProperty('application.version') != '12.2') {
+        throw new GradleException("This extension requires Ghidra 12.2.")
+    }
     apply from: new File(ghidraInstallDir).getCanonicalPath() + "/support/buildExtension.gradle"
 } else {
     throw new GradleException("GHIDRA_INSTALL_DIR is not defined!")

@@ -9,7 +9,7 @@ agent.
 
 ## Requirements
 
-- Ghidra 12.1 and JDK 21
+- Ghidra 12.2 and JDK 25
 - GDB with the `i8086` architecture
 - The [DOSBox-X remote-debug fork](https://github.com/64kramsystem/dosbox-x)
 
@@ -50,3 +50,9 @@ attached to the guest, and snapshots do not make an attached base image
 immutable.
 
 GPL-2.0-or-later.
+
+Saved debugger traces from earlier Ghidra versions cannot be opened by 12.2; capture a new trace.
+
+The full launcher/TraceRMI test is available in the sibling GhidraMCP-next checkout:
+`python ../ghidra-mcp-next/tools/test_debugger_stacks.py --stack dos --ghidra "$GHIDRA_INSTALL_DIR"`.
+It uses a disposable emulator and the Ghidra 12.2 GDB agent.

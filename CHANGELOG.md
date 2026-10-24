@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Changed
+
+- **Breaking:** require Ghidra 12.2 and JDK 25; build CI artifacts for that exact release.
+- Document trace-database migration and the full Ghidra GDB TraceRMI integration test.
+
+
 ### Fixed
 
 - Enable Java native access and configuration caching for extension builds, with a cache-safe dependency-copy task.
